@@ -7,7 +7,7 @@ import scalaz.OptionT
 
 trait KeyValueStore
 {
-  def put[T](key: String, item: T)(implicit Writes: Writes[T]): Future[Boolean]
+  def put[T](key: String, item: T)(implicit Writes: Writes[T]): Future[T]
 
   def get[T](key: String)(implicit reads: Reads[T]): OptionT[Future, T]
 

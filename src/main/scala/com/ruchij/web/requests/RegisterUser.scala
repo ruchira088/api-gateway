@@ -5,7 +5,7 @@ import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 case class RegisterUser(username: String, password: String, email: String)
 
-object RegisterUser extends SprayJsonSupport with DefaultJsonProtocol
+object RegisterUser extends DefaultJsonProtocol with SprayJsonSupport
 {
   implicit def jsonFormat: RootJsonFormat[RegisterUser] = jsonFormat3(RegisterUser.apply)
 }

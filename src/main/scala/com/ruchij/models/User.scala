@@ -20,6 +20,6 @@ case class User(
 object User
 {
   import com.ruchij.play.JsonFormats._
-  
-  implicit def jsonFormat: OFormat[User] = Json.format[User]
+
+  implicit def oFormat: OFormat[User] = Json.format[User]
 }

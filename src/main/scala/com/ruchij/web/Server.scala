@@ -7,9 +7,9 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import com.google.inject.Guice
 import com.ruchij.modules.GuiceModule
-import com.ruchij.services.UserService
-import com.ruchij.web.requests.RegisterUser
-import play.api.libs.json.Json
+import com.ruchij.services.{AuthenticationService, UserService}
+import com.ruchij.utils.GeneralUtils.toJsonString
+import com.ruchij.web.requests.{LoginUser, RegisterUser}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContextExecutor, Promise}
@@ -28,6 +28,7 @@ object Server
     val injector = Guice.createInjector(new GuiceModule())
 
     val userService = injector.getInstance(classOf[UserService])
+    val authenticationService = injector.getInstance(classOf[AuthenticationService])
 
     val routes =
       path("hello") {
@@ -38,17 +39,31 @@ object Server
       path("user") {
         post {
           entity(as[RegisterUser]) {
-            registerUser => {
+            registerUser =>
               onComplete(userService.create(registerUser)) {
 
                 case Success(user) => complete(
-                  StatusCodes.Created,
-                  HttpEntity(ContentTypes.`application/json`, Json.stringify(Json.toJson(user.sanitize)))
-                )
+                    StatusCodes.Created,
+                    HttpEntity(ContentTypes.`application/json`, toJsonString(user.sanitize))
+                  )
 
                 case Failure(exception) => complete(exception.getMessage)
               }
-            }
+          }
+        }
+      } ~
+      path("session") {
+        post {
+          entity(as[LoginUser]) {
+            userCredentials =>
+              onComplete(authenticationService.login(userCredentials.username, userCredentials.password)) {
+                case Success(authToken) => complete(
+                    StatusCodes.Created,
+                    HttpEntity(ContentTypes.`application/json`, toJsonString(authToken.sanitize))
+                  )
+
+                case Failure(exception) => complete(exception.getMessage)
+              }
           }
         }
       }
