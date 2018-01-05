@@ -8,6 +8,7 @@ case class User(
       createdAt: DateTime,
       username: String,
       password: Option[String],
+      role: Role,
       email: String,
       firstName: Option[String],
       lastName: Option[String]

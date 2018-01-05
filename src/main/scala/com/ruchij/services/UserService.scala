@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import com.ruchij.daos.UserDao
 import com.ruchij.exceptions.UsernameAlreadyExistsException
-import com.ruchij.models.User
+import com.ruchij.models.{Applicant, User}
 import com.ruchij.services.hashing.PasswordHashingService
 import com.ruchij.utils.GeneralUtils._
 import com.ruchij.web.requests.RegisterUser
@@ -41,6 +41,7 @@ class UserService @Inject()(userDao: UserDao, passwordHashingService: PasswordHa
           DateTime.now(),
           registerUser.username,
           Some(hashedPassword),
+          Applicant,
           registerUser.email,
           None,
           None
