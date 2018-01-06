@@ -2,6 +2,24 @@ version: "3"
 
 services:
 
+  api-gateway:
+    build: .
+    ports:
+      - 8000:8000
+      - 5005:5005
+    volumes:
+      - "~/.ivy2:/root/.ivy2"
+      - "~/.sbt:/root/.sbt"
+      - ".:/opt/api-gateway"
+      - "/opt/api-gateway/target"
+    depends_on:
+      - mongo-database
+      - redis-kv-store
+    environment:
+      MONGO_DB_URL: "mongodb://mongo-database:27017"
+      REDIS_HOST: "redis-kv-store"
+      REDIS_PORT: "6379"
+
   mongo-database:
     image: mongo
     ports:

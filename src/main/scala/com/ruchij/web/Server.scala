@@ -2,14 +2,18 @@ package com.ruchij.web
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.headers.{RawHeader, `Access-Control-Allow-Origin`}
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import com.google.common.net
+import com.google.common.net.HttpHeaders
 import com.google.inject.Guice
 import com.ruchij.modules.GuiceModule
 import com.ruchij.services.{AuthenticationService, UserService}
 import com.ruchij.utils.GeneralUtils.toJsonString
 import com.ruchij.web.requests.{LoginUser, RegisterUser}
+import com.ruchij.web.routes.{SessionRoute, UserRoute}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContextExecutor, Promise}
@@ -17,7 +21,7 @@ import scala.util.{Failure, Success}
 
 object Server
 {
-  val HTTP_PORT = 8001
+  val HTTP_PORT = 8000
 
   def main(args: Array[String]): Unit =
   {
@@ -36,37 +40,8 @@ object Server
           complete(StatusCodes.OK, HttpEntity(ContentTypes.`application/json`, """{"message": "Hello World"}"""))
         }
       } ~
-      path("user") {
-        post {
-          entity(as[RegisterUser]) {
-            registerUser =>
-              onComplete(userService.create(registerUser)) {
-
-                case Success(user) => complete(
-                    StatusCodes.Created,
-                    HttpEntity(ContentTypes.`application/json`, toJsonString(user.sanitize))
-                  )
-
-                case Failure(exception) => complete(exception.getMessage)
-              }
-          }
-        }
-      } ~
-      path("session") {
-        post {
-          entity(as[LoginUser]) {
-            userCredentials =>
-              onComplete(authenticationService.login(userCredentials.username, userCredentials.password)) {
-                case Success(authToken) => complete(
-                    StatusCodes.Created,
-                    HttpEntity(ContentTypes.`application/json`, toJsonString(authToken.sanitize))
-                  )
-
-                case Failure(exception) => complete(exception.getMessage)
-              }
-          }
-        }
-      }
+      UserRoute(userService) ~
+      SessionRoute(authenticationService)
 
     val _ = for {
       server <- Http().bindAndHandle(routes, "0.0.0.0", HTTP_PORT)
