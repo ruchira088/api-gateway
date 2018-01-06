@@ -2,7 +2,7 @@ package com.ruchij.models
 
 import play.api.libs.json._
 
-trait Role
+sealed trait Role
 
 object Role
 {

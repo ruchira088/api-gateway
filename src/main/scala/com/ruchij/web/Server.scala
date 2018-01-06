@@ -2,22 +2,17 @@ package com.ruchij.web
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.{RawHeader, `Access-Control-Allow-Origin`}
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
-import com.google.common.net
-import com.google.common.net.HttpHeaders
 import com.google.inject.Guice
 import com.ruchij.modules.GuiceModule
+import com.ruchij.services.product.ProductService
 import com.ruchij.services.{AuthenticationService, UserService}
-import com.ruchij.utils.GeneralUtils.toJsonString
-import com.ruchij.web.requests.{LoginUser, RegisterUser}
-import com.ruchij.web.routes.{SessionRoute, UserRoute}
+import com.ruchij.web.routes.{ProductRoute, SessionRoute, UserRoute}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContextExecutor, Promise}
-import scala.util.{Failure, Success}
 
 object Server
 {
@@ -33,6 +28,7 @@ object Server
 
     val userService = injector.getInstance(classOf[UserService])
     val authenticationService = injector.getInstance(classOf[AuthenticationService])
+    val productService = injector.getInstance(classOf[ProductService])
 
     val routes =
       path("hello") {
@@ -41,7 +37,8 @@ object Server
         }
       } ~
       UserRoute(userService) ~
-      SessionRoute(authenticationService)
+      SessionRoute(authenticationService) ~
+      ProductRoute(productService)
 
     val _ = for {
       server <- Http().bindAndHandle(routes, "0.0.0.0", HTTP_PORT)

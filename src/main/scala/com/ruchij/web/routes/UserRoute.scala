@@ -1,11 +1,11 @@
 package com.ruchij.web.routes
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
-import com.ruchij.services.UserService
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import com.ruchij.utils.GeneralUtils.toJsonString
+import com.ruchij.services.UserService
 import com.ruchij.web.requests.RegisterUser
+import com.ruchij.web.utils.ResponseUtils._
 
 import scala.util.{Failure, Success}
 
@@ -18,12 +18,9 @@ object UserRoute
           registerUser =>
             onComplete(userService.create(registerUser)) {
 
-              case Success(user) => complete(
-                StatusCodes.Created,
-                HttpEntity(ContentTypes.`application/json`, toJsonString(user.sanitize))
-              )
+              case Success(user) => jsonResponse(StatusCodes.Created, user.sanitize)
 
-              case Failure(exception) => complete(exception.getMessage)
+              case Failure(throwable) => errorHandler(throwable)
             }
         }
       }

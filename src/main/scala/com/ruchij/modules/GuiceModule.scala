@@ -8,6 +8,7 @@ import com.ruchij.daos.{MongoUserDao, UserDao}
 import com.ruchij.mongo.MongoCollection
 import com.ruchij.services.hashing.{BcryptPasswordHashing, PasswordHashingService}
 import com.ruchij.services.kv.{KeyValueStore, RedisKeyValueStore}
+import com.ruchij.services.product.{ProductService, ProductServiceImpl}
 import com.ruchij.utils.ConfigUtils.getEnvValue
 import com.ruchij.utils.GeneralUtils
 import reactivemongo.api.MongoConnection
@@ -28,6 +29,7 @@ class GuiceModule()(implicit actorSystem: ActorSystem, executionContext: Executi
     bind(classOf[BlockingExecutionContext]).to(classOf[BlockingExecutionContextImpl])
 
     bind(classOf[PasswordHashingService]).to(classOf[BcryptPasswordHashing])
+    bind(classOf[ProductService]).to(classOf[ProductServiceImpl])
     bind(classOf[UserDao]).to(classOf[MongoUserDao])
     bind(classOf[KeyValueStore]).to(classOf[RedisKeyValueStore])
   }
