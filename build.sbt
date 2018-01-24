@@ -2,12 +2,12 @@ import sbt.Keys._
 import sbt._
 import sbtrelease.Version
 
-name := "hello"
+name := "api-gateway"
 
 resolvers += Resolver.sonatypeRepo("public")
 scalaVersion := "2.12.4"
 releaseNextVersion := { ver => Version(ver).map(_.bumpMinor.string).getOrElse("Error") }
-assemblyJarName in assembly := "hello.jar"
+assemblyJarName in assembly := "api-gateway.jar"
 
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-lambda-java-events" % "1.3.0",

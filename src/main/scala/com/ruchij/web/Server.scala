@@ -13,6 +13,7 @@ import com.ruchij.web.routes.{ProductRoute, SessionRoute, UserRoute}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContextExecutor, Promise}
+import scala.sys
 
 object Server
 {

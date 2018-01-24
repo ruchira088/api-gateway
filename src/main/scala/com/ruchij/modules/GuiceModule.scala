@@ -14,7 +14,10 @@ import com.ruchij.utils.GeneralUtils
 import reactivemongo.api.MongoConnection
 import redis.RedisClient
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.duration._
+import scala.sys.addShutdownHook
+import scala.language.postfixOps
 import scala.util.Try
 
 class GuiceModule()(implicit actorSystem: ActorSystem, executionContext: ExecutionContext) extends AbstractModule
@@ -38,6 +41,13 @@ class GuiceModule()(implicit actorSystem: ActorSystem, executionContext: Executi
     for {
       mongoConnection <- mongoDbConnection()
       redis <- redisClient()
+
+      _ = println("Successfully connected to MongoDB and Redis")
+
+      _ = addShutdownHook {
+        mongoConnection.close()
+        Await.ready(redis.shutdown(), 30 seconds)
+      }
     }
     yield  {
       bind(classOf[MongoConnection]).toInstance(mongoConnection)
@@ -55,7 +65,6 @@ class GuiceModule()(implicit actorSystem: ActorSystem, executionContext: Executi
     for {
       redisHost <- getEnvValue(REDIS_HOST)
       redisPort <- getEnvValue(REDIS_PORT).flatMap(GeneralUtils.parse[String, Int](_, string => string.toInt))
-      redis = RedisClient(host = redisHost, port = redisPort)
     }
-    yield redis
+    yield RedisClient(host = redisHost, port = redisPort)
 }

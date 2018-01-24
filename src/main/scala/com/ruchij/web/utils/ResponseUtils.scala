@@ -27,5 +27,5 @@ object ResponseUtils
   }
 
   def jsonResponse[T](statusCode: StatusCode, response: T)(implicit writes: Writes[T]): StandardRoute =
-    complete(HttpEntity(ContentTypes.`application/json`, toJsonString(response)))
+    complete(statusCode, HttpEntity(ContentTypes.`application/json`, toJsonString(response)))
 }
